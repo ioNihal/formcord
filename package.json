@@ -1,0 +1,41 @@
+{
+  "name": "formcord",
+  "version": "1.0.0",
+  "description": "Lightweight Discord notifications using only Web APIs",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "discord",
+    "notifications",
+    "discord-api",
+    "web-api",
+    "serverless",
+    "edge",
+    "fetch"
+  ],
+  "author": "Nihal K",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}
