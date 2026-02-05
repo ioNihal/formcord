@@ -2,11 +2,20 @@
 
 Lightweight, universal notifications to Discord using only Web APIs.
 
+## Requirements
+Node 18+ or any runtime with fetch support
+
 ## Install
 
 ```bash
 npm install formcord
 ```
+
+## Discord Bot Setup
+1. Create an app and bot in the Discord Developer Portal.
+2. Copy the bot token.
+3. Invite the bot to your server with permission to send messages.
+4. Get the channel ID (enable Developer Mode, then copy ID).
 
 ## Quick Usage
 
@@ -121,10 +130,11 @@ formcord.contact({
 - Retry once on 429 rate limits
 - Best effort delivery
 - This is for small developer notifications and internal workflows, not a guaranteed delivery system for enterprise products.
+- Requires a Discord bot token with permission to post in the target channel.
 
 
 ## Environment Variables
-Optional, not required but its recommended for your token safety:
+Optional, not required, but recommended to keep your token safe:
 
 ```
 FORMCORD_DISCORD_TOKEN=xxxx
@@ -132,4 +142,4 @@ FORMCORD_DISCORD_CHANNEL=yyyy
 ```
 
 ## License
-ISC
+MIT

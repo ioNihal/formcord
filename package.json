@@ -37,5 +37,13 @@
   "devDependencies": {
     "tsup": "^8.5.1",
     "typescript": "^5.9.3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ioNihal/formcord.git"
+  },
+  "homepage": "https://github.com/ioNihal/formcord",
+  "bugs": {
+    "url": "https://github.com/ioNihal/formcord/issues"
   }
 }
