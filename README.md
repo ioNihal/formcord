@@ -1,4 +1,8 @@
 ﻿# Formcord
+![npm](https://img.shields.io/npm/v/formcord)
+![downloads](https://img.shields.io/npm/dm/formcord)
+![bundle size](https://img.shields.io/bundlephobia/minzip/formcord)
+![license](https://img.shields.io/npm/l/formcord)
 
 Lightweight, universal notifications to Discord using only Web APIs.
 
@@ -126,6 +130,7 @@ formcord.contact({
 ```
 
 ## Notes
+- Package size (npm): ~9.4 kB compressed, ~65 kB unpacked (v1.0.0)
 - Uses only `fetch`, `URL`, and JSON
 - Retry once on 429 rate limits
 - Best effort delivery
