@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "license": "MIT",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./src/index.ts"
+  },
+  "publish": {
+    "include": ["src", "README.md", "LICENSE"]
   }
 }
