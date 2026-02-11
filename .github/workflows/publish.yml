@@ -4,15 +4,26 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # 👈 Add this
+  workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       id-token: write
+
     steps:
       - uses: actions/checkout@v4
-      - name: Publish package
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
+      - run: npm run build   
+
+      - name: Publish to JSR
         run: npx jsr publish
