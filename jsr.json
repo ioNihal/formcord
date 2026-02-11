@@ -2,11 +2,7 @@
   "name": "@nihal/formcord",
   "version": "1.0.0",
   "license": "MIT",
-    "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
-    }
-  },
+  "exports": {
+    ".": "./dist/index.js"
+  }
 }
