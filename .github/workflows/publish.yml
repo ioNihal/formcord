@@ -21,9 +21,8 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install
+      - run: npm ci
 
-      - run: npm run build   
+      - run: npm run build
 
-      - name: Publish to JSR
-        run: npx jsr publish
+      - run: npx jsr publish
