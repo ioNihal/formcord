@@ -1,4 +1,4 @@
-﻿# Formcord
+# Formcord
 ![npm](https://img.shields.io/npm/v/formcord)
 ![downloads](https://img.shields.io/npm/dm/formcord)
 ![bundle size](https://img.shields.io/bundlephobia/minzip/formcord)
@@ -21,130 +21,135 @@ npm install formcord
 3. Invite the bot to your server with permission to send messages.
 4. Get the channel ID (enable Developer Mode, then copy ID).
 
-## Quick Usage
+## Quick Usage (v2)
+
+Formcord v2 introduces a highly intuitive, standardized API where data is clearly separated from styling and text.
 
 ```ts
 import { formcord } from "formcord";
 
-await formcord.contact({
+await formcord.send({
   token: process.env.FORMCORD_DISCORD_TOKEN!,
   channelId: process.env.FORMCORD_DISCORD_CHANNEL!,
-  subject: "Hello",
-  email: "me@example.com",
-  message: "This is a test",
+  
+  // 1. Text outside the embed (optional)
+  text: "New submission from your website", 
+  
+  // 2. Embed styling (optional)
+  embed: {
+    title: "📩 Contact Form",
+    color: 0x5865f2,
+  },
+
+  // 3. Your custom form fields (automatically mapped to Discord fields)
+  data: {
+    "Name": "John Doe",
+    "Email": "john@example.com",
+    "Inquiry": "I need help with billing."
+  }
 });
 ```
 
 ## API
 
-### contact
+### send (Unified Method)
+Use the generic `send` method for any custom notification type.
+
 ```ts
-formcord.contact({
+formcord.send({
   token,
   channelId,
-  subject,
-  email,
-  message,
-  throwOnError,
-  content,
-  theme,
+  text,    // The top-level Discord message
+  embed,   // Formatting options (title, description, color, author, footer, timestamp)
+  data,    // Key-value pairs displayed inside the embed
 });
 ```
 
-### error
+### Pre-defined Templates
+
+If you prefer structured templates, you can still use the built-in helpers. They require specific fields inside the `data` object to ensure standardization.
+
+**contact**
+```ts
+formcord.contact({
+  token, channelId, text, embed,
+  data: { subject, email, message, /* ...any extra fields */ }
+});
+```
+
+**error**
 ```ts
 formcord.error({
-  token,
-  channelId,
-  error,
-  source,
-  environment,
-  throwOnError,
-  content,
-  theme,
+  token, channelId, text, embed,
+  error: new Error("Something broke"),
+  data: { source, environment }
 });
 ```
 
-### deploy
+**deploy**
 ```ts
 formcord.deploy({
-  token,
-  channelId,
-  project,
-  environment,
-  url,
-  commit,
-  throwOnError,
-  content,
-  theme,
+  token, channelId, text, embed,
+  data: { project, environment, url, commit }
 });
 ```
 
-### feedback
+**feedback**
 ```ts
 formcord.feedback({
-  token,
-  channelId,
-  rating,
-  message,
-  throwOnError,
-  content,
-  theme,
+  token, channelId, text, embed,
+  data: { rating, message }
 });
 ```
 
-### bug
+**bug**
 ```ts
 formcord.bug({
-  token,
-  channelId,
-  title,
-  steps,
-  browser,
-  throwOnError,
-  content,
-  theme,
+  token, channelId, text, embed,
+  data: { title, steps, browser }
 });
 ```
 
-## Theming and Content
 
-You can add a top message with `content` and customize embed styling with `theme`.
+## ⚠️ Migration Guide from v1.x to v2.x
 
+Version 2.0.0 completely standardizes the field names to prevent confusion between top-level text, embed styling, and form fields.
+
+**Before (v1.x):**
 ```ts
 formcord.contact({
   token,
   channelId,
+  content: "Top message text",
+  theme: { title: "My Title" },
   subject: "Hello",
   email: "me@example.com",
-  message: "This is a test",
-  content: "New support request",
-  theme: {
-    title: "📩 RenderCard Support Message",
-    author: { name: "Anonymous User · 8f3a2d" },
-    color: 0x5865f2,
-    footer: { text: "Email: me@example.com" },
-    timestamp: new Date().toISOString(),
-  },
+  message: "Test"
+});
+```
+
+**After (v2.x):**
+```ts
+formcord.contact({
+  token,
+  channelId,
+  text: "Top message text",              // `content` is now `text`
+  embed: { title: "My Title" },          // `theme` is now `embed`
+  data: {                                // ALL form fields go inside `data`
+    subject: "Hello",
+    email: "me@example.com",
+    message: "Test"
+  }
 });
 ```
 
 ## Notes
-- Package size (npm): ~9.4 kB compressed, ~65 kB unpacked (v1.0.0)
+- Package size (npm): ~9.4 kB compressed, ~65 kB unpacked
 - Uses only `fetch`, `URL`, and JSON
 - Retry once on 429 rate limits
 - Best effort delivery
 - This is for small developer notifications and internal workflows, not a guaranteed delivery system for enterprise products.
 - Requires a Discord bot token with permission to post in the target channel.
-
-
-## Environment Variables
-Optional, not required, but recommended to keep your token safe:
-
-```
-FORMCORD_DISCORD_TOKEN=xxxx
-FORMCORD_DISCORD_CHANNEL=yyyy
-```
 
 ## License
 MIT

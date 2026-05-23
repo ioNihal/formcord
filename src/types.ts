@@ -1,18 +1,19 @@
 /**
- * Optional overrides for embed styling.
+ * Styling and metadata options for the Discord embed.
  */
-export type EmbedTheme = {
+export type EmbedOptions = {
   title?: string;
-  author?: { name: string };
+  description?: string;
+  author?: { name: string; icon_url?: string; url?: string };
   color?: number;
-  footer?: { text: string };
-  timestamp?: string;
+  footer?: { text: string; icon_url?: string };
+  timestamp?: string | Date;
 };
 
 /**
- * Base parameters shared by all notify helpers.
+ * Base options for all Formcord V2 notifications.
  */
-export type BaseNotifyParams = {
+export type FormcordOptions = {
   /**
   * Discord bot token.
   */
@@ -26,11 +27,15 @@ export type BaseNotifyParams = {
   */
   throwOnError?: boolean;
   /**
-  * Optional embed theming overrides.
+  * The text that appears outside the embed (top message content).
   */
-  theme?: EmbedTheme;
+  text?: string;
   /**
-  * Optional message content shown above the embed.
+  * Optional embed theming and metadata.
   */
-  content?: string;
+  embed?: EmbedOptions;
+  /**
+  * Key-value fields that will be automatically formatted into the embed.
+  */
+  data?: Record<string, unknown>;
 }
