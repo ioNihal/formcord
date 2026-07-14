@@ -32,15 +32,22 @@ export async function sendDiscord({
     body,
     retries = 1,
 }: SendDiscordParams): Promise<void> {
+    const headers: Record<string, string> = {
+        Authorization: `Bot ${token}`,
+    };
+
+    const isFormData = typeof FormData !== "undefined" && body instanceof FormData;
+
+    if (!isFormData) {
+        headers["Content-Type"] = "application/json";
+    }
+
     const res = await fetch(
         `https://discord.com/api/v10/channels/${channelId}/messages`,
         {
             method: "POST",
-            headers: {
-                Authorization: `Bot ${token}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
+            headers,
+            body: isFormData ? (body as FormData) : JSON.stringify(body),
         }
     );
 

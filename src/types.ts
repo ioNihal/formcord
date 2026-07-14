@@ -38,4 +38,30 @@ export type FormcordOptions = {
   * Key-value fields that will be automatically formatted into the embed.
   */
   data?: Record<string, unknown>;
+  /**
+   * Files to attach to the message.
+   */
+  files?: FormcordFile[];
 }
+
+/**
+ * Representation of a file to be attached to the Discord message.
+ */
+export type FormcordFile = {
+  /**
+   * Name of the file with extension (e.g. "report.pdf", "image.png").
+   */
+  name: string;
+  /**
+   * Raw file data. Can be a string, ArrayBuffer, Uint8Array, or Blob.
+   */
+  data: string | ArrayBuffer | Uint8Array | Blob;
+  /**
+   * Optional MIME type of the file.
+   */
+  contentType?: string;
+  /**
+   * Optional description of the file.
+   */
+  description?: string;
+};

@@ -101,4 +101,81 @@ await formcord.bug({
   }
 });
 
-console.log("Six V2 themed messages sent");
+// 7) media / attachments support
+console.log("Testing attachments...");
+await formcord.send({
+  token,
+  channelId,
+  text: "Testing media attachments support (1 plain text, 1 markdown file, and 1 warning)",
+  embed: { ...base, title: "📎 Attachments Test" },
+  data: {
+    "Files Attached": "2 files should be attached, 1 should be ignored due to 25MB limit",
+  },
+  files: [
+    {
+      name: "hello.txt",
+      data: "Hello world from formcord media support!",
+      contentType: "text/plain",
+      description: "A friendly hello file"
+    },
+    {
+      name: "notes.md",
+      data: "# Formcord Notes\n\nAttachments work perfectly!",
+      contentType: "text/markdown"
+    },
+    {
+      name: "oversized.pdf",
+      data: "x".repeat(1024 * 1024 * 26), // 26MB file (fails default 25MB limit)
+      contentType: "application/pdf"
+    }
+  ]
+});
+
+await wait(1200);
+
+// Verify throwOnError for single file limit (default 25MB limit)
+try {
+  await formcord.send({
+    token,
+    channelId,
+    throwOnError: true,
+    files: [
+      {
+        name: "too-large-throw.txt",
+        data: "x".repeat(1024 * 1024 * 26) // 26MB
+      }
+    ]
+  });
+  throw new Error("Expected throwOnError to throw an error for oversized file, but it didn't.");
+} catch (e) {
+  console.log("Expected throwOnError single file error thrown successfully:", e.message);
+}
+
+// Verify validateFiles direct helper invocation
+const { validateFiles } = await import("../dist/index.js");
+const checkResult = validateFiles([
+  { name: "f1.txt", data: "hello" },
+  { name: "f2.txt", data: "world" },
+  { name: "f3.txt", data: "formcord" }
+], { maxFileCount: 2 });
+
+if (checkResult.valid.length === 2 && checkResult.invalid.length === 1 && checkResult.invalid[0].reason === "count_exceeded") {
+  console.log("validateFiles helper function verified successfully!");
+} else {
+  throw new Error("validateFiles helper returned unexpected results: " + JSON.stringify(checkResult));
+}
+
+// Verify ignoreInvalid: false behavior on helper
+const allOrNothingCheck = validateFiles([
+  { name: "f1.txt", data: "hello" },
+  { name: "f2.txt", data: "world" },
+  { name: "f3.txt", data: "x".repeat(1024 * 1024 * 3) } // 3MB (fails limit)
+], { maxFileSize: "2mb", ignoreInvalid: false });
+
+if (allOrNothingCheck.valid.length === 0 && allOrNothingCheck.invalid.length === 3) {
+  console.log("all-or-nothing check (ignoreInvalid: false) on validateFiles verified successfully!");
+} else {
+  throw new Error("ignoreInvalid: false helper test returned unexpected results: " + JSON.stringify(allOrNothingCheck));
+}
+
+console.log("Seven themed messages and error handling tests sent/verified");

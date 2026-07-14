@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.0
+- **NEW**: Added media upload and attachment support (`files` property inside `FormcordOptions`). Supports string/markdown content, ArrayBuffers, Blobs, and Uint8Arrays/Buffers. Matches strict Discord limit defaults (25MB size limit, 10 file count) on notify helper functions.
+- **NEW**: Added a standalone, developer-facing `validateFiles` utility helper for validating custom constraints (file size limits, combined total sizes, file counts, and `ignoreInvalid` all-or-nothing check policies).
+- **NEW**: Support for string-formatted file limits (e.g. `"25mb"`, `"2mb"`, `"500kb"`) inside `validateFiles` configuration.
+- **FIX**: Refined deprecation warnings to avoid false warnings when sending text or files without a `data` block.
+
 ## 2.0.1
 - **FIX**: Added runtime deprecation warning for `v1.x` syntax (`theme`, `content`) to help users smoothly migrate to the V2 `data` API without silent failures.
 

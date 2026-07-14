@@ -1,7 +1,6 @@
 const isProd =
     typeof globalThis !== "undefined" &&
-    typeof (globalThis as any).process !== "undefined" &&
-    (globalThis as any).process?.env?.NODE_ENV === "production";
+    (globalThis as { process?: { env?: { NODE_ENV?: string } } }).process?.env?.NODE_ENV === "production";
 
 /**
 * Dev-only warning logger. No-op in production.

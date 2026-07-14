@@ -65,6 +65,59 @@ formcord.send({
 });
 ```
 
+### Media Support (Attachments)
+
+Formcord v2.1 introduces native, zero-dependency attachment support. You can attach PDFs, images, code logs, markdown files, and other media types. 
+
+Attach files using the optional `files` array inside your configuration block:
+
+```ts
+await formcord.send({
+  token,
+  channelId,
+  text: "New submission containing uploaded files",
+  files: [
+    {
+      name: "report.pdf",
+      data: arrayBufferData, // string, ArrayBuffer, Uint8Array, or Blob
+      contentType: "application/pdf"
+    },
+    {
+      name: "logs.txt",
+      data: "Raw console text logs..."
+    }
+  ]
+});
+```
+
+#### Size Limit Configuration
+
+By default, the unified `send()` function and all template helpers strictly enforce Discord's standard API constraints:
+* **Max file size**: 25 MB per file
+* **Max total size**: 25 MB total combined
+* **Max file count**: 10 files per message
+* **Oversized files** are ignored (filtered out) from delivery, and a warning is printed to the console (and appended to the message text so you see it in your channel).
+
+If you want custom checking (e.g. strict all-or-nothing checks or a smaller 2MB size cap), you should run the files through the standalone `validateFiles` helper first as a guard.
+
+
+#### Standalone Validation Helper
+
+For fine-grained control, you can import the standalone validation helper function `validateFiles` to filter and check your files before sending them:
+
+```ts
+import { validateFiles } from "formcord";
+
+const { valid, invalid } = validateFiles(files, {
+  maxFileSize: "2mb",
+  maxFileCount: 5,
+  ignoreInvalid: true
+});
+
+console.log("Valid files ready to attach:", valid);
+console.log("Invalid files:", invalid); // Contains [{ file, reason, message }]
+```
+
 ### Pre-defined Templates
 
 If you prefer structured templates, you can still use the built-in helpers. They require specific fields inside the `data` object to ensure standardization.

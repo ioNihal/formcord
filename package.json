@@ -1,6 +1,6 @@
 {
   "name": "formcord",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Lightweight Discord notifications using only Web APIs",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

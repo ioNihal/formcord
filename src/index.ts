@@ -6,6 +6,7 @@ import { bug } from "./notify/bug";
 import { send } from "./notify/send";
 
 export * from "./types";
+export * from "./core/validate";
 export * from "./notify/contact";
 export * from "./notify/error";
 export * from "./notify/deploy";
