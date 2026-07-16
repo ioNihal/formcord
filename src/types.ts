@@ -39,9 +39,9 @@ export type FormcordOptions = {
   */
   data?: Record<string, unknown>;
   /**
-   * Files to attach to the message.
+   * Files to attach to the message. Can be FormcordFile objects or raw standard File/Blob objects.
    */
-  files?: FormcordFile[];
+  files?: (FormcordFile | Blob)[];
 }
 
 /**

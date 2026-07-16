@@ -3,7 +3,7 @@ import type { FormcordFile } from "../types";
 /**
  * Reasons why a file can fail validation.
  */
-export type FileValidationErrorReason = "file_size_exceeded" | "total_size_exceeded" | "count_exceeded";
+export type FileValidationErrorReason = "file_size_exceeded" | "total_size_exceeded" | "count_exceeded" | "invalid_file_type" | "batch_rejected";
 
 /**
  * Detailed error object representing a file that failed validation.
@@ -94,6 +94,7 @@ export function parseSizeLimit(limit: number | string | undefined, defaultBytes:
  * Helper to get size of different standard browser / node data types.
  */
 export function getFileByteSize(data: string | ArrayBuffer | Uint8Array | Blob): number {
+    if (data === null || data === undefined) return -1;
     if (typeof data === "string") {
         return new TextEncoder().encode(data).byteLength;
     }
@@ -106,7 +107,7 @@ export function getFileByteSize(data: string | ArrayBuffer | Uint8Array | Blob):
     if (ArrayBuffer.isView(data)) {
         return data.byteLength;
     }
-    return 0;
+    return -1;
 }
 
 /**
@@ -114,7 +115,7 @@ export function getFileByteSize(data: string | ArrayBuffer | Uint8Array | Blob):
  * Returns arrays of valid and invalid files.
  */
 export function validateFiles(
-    files: FormcordFile[],
+    files: (FormcordFile | Blob)[],
     options?: FileValidationOptions
 ): FileValidationResult {
     const maxFileSize = parseSizeLimit(options?.maxFileSize, 25 * 1024 * 1024);
@@ -128,7 +129,27 @@ export function validateFiles(
     const invalid: FileValidationError[] = [];
     let currentTotalSize = 0;
 
-    for (const file of files) {
+    // Normalize raw browser File/Blob objects automatically, discarding null/undefined entries
+    const normalizedFiles: FormcordFile[] = (files || [])
+        .filter((file): file is FormcordFile | Blob => file !== null && file !== undefined)
+        .map((file) => {
+        if (file && typeof file === "object" && !("data" in file)) {
+            const fileObj = file as unknown as Record<string, unknown>;
+            const hasName = "name" in fileObj && typeof fileObj.name === "string";
+            const isBlobLike = typeof Blob !== "undefined" && file instanceof Blob;
+            
+            if (hasName || isBlobLike) {
+                return {
+                    name: (fileObj.name as string) || "unnamed",
+                    data: file as Blob,
+                    contentType: typeof fileObj.type === "string" ? fileObj.type : undefined
+                };
+            }
+        }
+        return file as FormcordFile;
+    });
+
+    for (const file of normalizedFiles) {
         if (valid.length >= maxFileCount) {
             invalid.push({
                 file,
@@ -139,6 +160,15 @@ export function validateFiles(
         }
 
         const size = getFileByteSize(file.data);
+
+        if (size < 0) {
+            invalid.push({
+                file,
+                reason: "invalid_file_type",
+                message: `File "${file.name}" has an invalid or unrecognized data type. Expected string, Blob, File, ArrayBuffer, or Buffer.`
+            });
+            continue;
+        }
 
         if (size > maxFileSize) {
             invalid.push({
@@ -165,11 +195,11 @@ export function validateFiles(
     if (!ignoreInvalid && invalid.length > 0) {
         const totalErrorMsg = `File validation failed: ${invalid.map(i => i.message).join("; ")}`;
         
-        // Move all previously marked "valid" files to invalid
+        // Move all previously marked "valid" files to invalid (push instead of unshift to avoid O(n^2))
         for (const file of valid) {
-            invalid.unshift({
+            invalid.push({
                 file,
-                reason: "total_size_exceeded",
+                reason: "batch_rejected",
                 message: `File "${file.name}" was rejected because another file in the batch failed validation.`
             });
         }
