@@ -1,5 +1,5 @@
 import { send } from "./send";
-import type { FormcordOptions } from "../types";
+import type { FormcordOptions, FormcordResult } from "../types";
 
 /**
  * Parameters for bug reports.
@@ -16,9 +16,9 @@ export type BugParams = Omit<FormcordOptions, "data"> & {
 /**
  * Sends a bug report to Discord.
  */
-export async function bug(options: BugParams): Promise<void> {
+export async function bug(options: BugParams): Promise<FormcordResult> {
     const embedTitle = options.embed?.title ?? "Bug Report";
-    await send({
+    return send({
         ...options,
         embed: {
             ...options.embed,

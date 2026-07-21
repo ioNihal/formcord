@@ -50,6 +50,20 @@ await formcord.send({
 });
 ```
 
+### Delivery status and debugging
+
+Formcord remains fire-and-forget: you can simply await it and continue. If your application needs to react to a failed Discord delivery, inspect the returned status:
+
+```ts
+const result = await formcord.send({ token, channelId, text: "New submission" });
+
+if (!result.success) {
+  // Show a fallback, retry, or record the failed notification.
+}
+```
+
+Set `throwOnError: true` when you need the original Discord error for debugging.
+
 ## API
 
 ### send (Unified Method)

@@ -1,5 +1,5 @@
 import { send } from "./send";
-import type { FormcordOptions } from "../types";
+import type { FormcordOptions, FormcordResult } from "../types";
 
 /**
  * Parameters for contact form messages.
@@ -16,9 +16,9 @@ export type ContactParams = Omit<FormcordOptions, "data"> & {
 /**
  * Sends a contact form message to Discord.
  */
-export async function contact(options: ContactParams): Promise<void> {
+export async function contact(options: ContactParams): Promise<FormcordResult> {
     const embedTitle = options.embed?.title ?? "New Contact Form";
-    await send({
+    return send({
         ...options,
         embed: {
             ...options.embed,

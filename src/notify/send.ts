@@ -3,12 +3,12 @@ import { formatDataToFields } from "../core/format";
 import { sanitizeText } from "../core/sanitize";
 import { warnOnce } from "../core/log";
 import { validateFiles } from "../core/validate";
-import type { FormcordOptions, FormcordFile } from "../types";
+import type { FormcordOptions, FormcordFile, FormcordResult } from "../types";
 
 /**
  * Unified notification sender for Formcord V2.
  */
-export async function send(options: FormcordOptions): Promise<void> {
+export async function send(options: FormcordOptions): Promise<FormcordResult> {
     const hasV1Keys = 'theme' in options || 'content' in options;
     const hasV2Keys = 'data' in options || 'embed' in options || 'text' in options || 'files' in options;
     if (hasV1Keys || !hasV2Keys) {
@@ -21,8 +21,8 @@ export async function send(options: FormcordOptions): Promise<void> {
     const warnings: string[] = [];
 
     if (files && files.length > 0) {
-        const { valid, invalid } = validateFiles(files, { 
-            maxFileSize: "25mb", 
+        const { valid, invalid } = validateFiles(files, {
+            maxFileSize: "25mb",
             maxTotalSize: "25mb",
             maxFileCount: 10,
             ignoreInvalid: true,
@@ -30,7 +30,7 @@ export async function send(options: FormcordOptions): Promise<void> {
             logWarnings: !throwOnError
         });
         validFiles.push(...valid);
-        
+
         for (const issue of invalid) {
             warnings.push(`⚠️ **[formcord] ${issue.message}**`);
         }
@@ -89,8 +89,10 @@ export async function send(options: FormcordOptions): Promise<void> {
 
     try {
         await sendDiscord({ token, channelId, body: payloadBody });
+        return { success: true };
     } catch (err) {
         if (throwOnError) throw err;
         warnOnce("[formcord] notify failed", err);
+        return { success: false };
     }
 }

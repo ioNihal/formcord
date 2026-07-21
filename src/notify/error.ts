@@ -1,5 +1,5 @@
 import { send } from "./send";
-import type { FormcordOptions } from "../types";
+import type { FormcordOptions, FormcordResult } from "../types";
 
 /**
  * Parameters for error reporting.
@@ -35,11 +35,11 @@ function normalizeError(err: unknown): {
 /**
  * Sends an error report to Discord.
  */
-export async function error(options: ErrorParams): Promise<void> {
+export async function error(options: ErrorParams): Promise<FormcordResult> {
     const e = normalizeError(options.error);
     const embedTitle = options.embed?.title ?? e.name;
-    
-    await send({
+
+    return send({
         ...options,
         embed: {
             ...options.embed,

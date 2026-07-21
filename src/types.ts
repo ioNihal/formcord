@@ -44,6 +44,11 @@ export type FormcordOptions = {
   files?: (FormcordFile | Blob)[];
 }
 
+/** The delivery status returned by Formcord notification methods. */
+export type FormcordResult = {
+  success: boolean;
+};
+
 /**
  * Representation of a file to be attached to the Discord message.
  */

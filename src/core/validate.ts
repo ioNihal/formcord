@@ -9,63 +9,63 @@ export type FileValidationErrorReason = "file_size_exceeded" | "total_size_excee
  * Detailed error object representing a file that failed validation.
  */
 export type FileValidationError = {
-  /**
-   * The file that failed validation.
-   */
-  file: FormcordFile;
-  /**
-   * The specific reason why this file was rejected.
-   */
-  reason: FileValidationErrorReason;
-  /**
-   * Human-readable explanation of why the file was rejected.
-   */
-  message: string;
+    /**
+     * The file that failed validation.
+     */
+    file: FormcordFile;
+    /**
+     * The specific reason why this file was rejected.
+     */
+    reason: FileValidationErrorReason;
+    /**
+     * Human-readable explanation of why the file was rejected.
+     */
+    message: string;
 };
 
 /**
  * The output of the file validation process, partitioning files by status.
  */
 export type FileValidationResult = {
-  /**
-   * Files that passed all validation constraints and are ready to upload.
-   */
-  valid: FormcordFile[];
-  /**
-   * Detailed reports of the files that failed validation.
-   */
-  invalid: FileValidationError[];
+    /**
+     * Files that passed all validation constraints and are ready to upload.
+     */
+    valid: FormcordFile[];
+    /**
+     * Detailed reports of the files that failed validation.
+     */
+    invalid: FileValidationError[];
 };
 
 export type FileValidationOptions = {
-  /**
-   * Maximum allowed size for a single file (bytes or formatted string like "25mb").
-   * Defaults to 25MB.
-   */
-  maxFileSize?: number | string;
-  /**
-   * Maximum allowed combined size for all files (bytes or formatted string like "25mb").
-   * Defaults to 25MB.
-   */
-  maxTotalSize?: number | string;
-  /**
-   * Maximum allowed number of files.
-   * Defaults to 10.
-   */
-  maxFileCount?: number;
-  /**
-   * If true (default), invalid files are ignored and valid files are kept.
-   * If false, any invalid file makes the entire batch invalid (all-or-nothing).
-   */
-  ignoreInvalid?: boolean;
-  /**
-   * If true, throws an Error on validation failure.
-   */
-  throwOnError?: boolean;
-  /**
-   * If true, console.warn warnings are logged.
-   */
-  logWarnings?: boolean;
+    /**
+     * Maximum allowed size for a single file (bytes or formatted string like "25mb").
+     * Defaults to 25MB.
+     */
+    maxFileSize?: number | string;
+    /**
+     * Maximum allowed combined size for all files (bytes or formatted string like "25mb").
+     * Defaults to 25MB.
+     */
+    maxTotalSize?: number | string;
+    /**
+     * Maximum allowed number of files.
+     * Defaults to 10.
+     */
+    maxFileCount?: number;
+    /**
+     * If true (default), invalid files are ignored and valid files are kept.
+     * If false, any invalid file makes the entire batch invalid (all-or-nothing).
+     */
+    ignoreInvalid?: boolean;
+    /**
+     * If true, throws an Error on validation failure.
+     */
+    throwOnError?: boolean;
+    /**
+     * If true, console.warn warnings are logged.
+     */
+    logWarnings?: boolean;
 };
 
 /**
@@ -74,14 +74,14 @@ export type FileValidationOptions = {
 export function parseSizeLimit(limit: number | string | undefined, defaultBytes: number): number {
     if (limit === undefined) return defaultBytes;
     if (typeof limit === "number") return limit;
-    
+
     const clean = limit.trim().toLowerCase();
     const match = clean.match(/^(\d+(?:\.\d+)?)\s*(kb|mb|gb|b)?$/);
     if (!match) return defaultBytes;
-    
+
     const value = parseFloat(match[1]);
     const unit = match[2];
-    
+
     switch (unit) {
         case "kb": return value * 1024;
         case "mb": return value * 1024 * 1024;
@@ -110,6 +110,22 @@ export function getFileByteSize(data: string | ArrayBuffer | Uint8Array | Blob):
     return -1;
 }
 
+/** Formats a byte count for human-facing validation messages. */
+function formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} bytes`;
+
+    const units = ["KB", "MB", "GB"];
+    let value = bytes / 1024;
+    let unitIndex = 0;
+
+    while (value >= 1024 && unitIndex < units.length - 1) {
+        value /= 1024;
+        unitIndex++;
+    }
+
+    return `${Number(value.toFixed(2))} ${units[unitIndex]}`;
+}
+
 /**
  * Validates files against individual size, total size, and count limits.
  * Returns arrays of valid and invalid files.
@@ -133,21 +149,21 @@ export function validateFiles(
     const normalizedFiles: FormcordFile[] = (files || [])
         .filter((file): file is FormcordFile | Blob => file !== null && file !== undefined)
         .map((file) => {
-        if (file && typeof file === "object" && !("data" in file)) {
-            const fileObj = file as unknown as Record<string, unknown>;
-            const hasName = "name" in fileObj && typeof fileObj.name === "string";
-            const isBlobLike = typeof Blob !== "undefined" && file instanceof Blob;
-            
-            if (hasName || isBlobLike) {
-                return {
-                    name: (fileObj.name as string) || "unnamed",
-                    data: file as Blob,
-                    contentType: typeof fileObj.type === "string" ? fileObj.type : undefined
-                };
+            if (file && typeof file === "object" && !("data" in file)) {
+                const fileObj = file as unknown as Record<string, unknown>;
+                const hasName = "name" in fileObj && typeof fileObj.name === "string";
+                const isBlobLike = typeof Blob !== "undefined" && file instanceof Blob;
+
+                if (hasName || isBlobLike) {
+                    return {
+                        name: (fileObj.name as string) || "unnamed",
+                        data: file as Blob,
+                        contentType: typeof fileObj.type === "string" ? fileObj.type : undefined
+                    };
+                }
             }
-        }
-        return file as FormcordFile;
-    });
+            return file as FormcordFile;
+        });
 
     for (const file of normalizedFiles) {
         if (valid.length >= maxFileCount) {
@@ -174,7 +190,7 @@ export function validateFiles(
             invalid.push({
                 file,
                 reason: "file_size_exceeded",
-                message: `File "${file.name}" exceeds the single file size limit of ${maxFileSize} bytes (actual: ${size} bytes).`
+                message: `File "${file.name}" exceeds the single file size limit of ${formatFileSize(maxFileSize)} (actual: ${formatFileSize(size)}).`
             });
             continue;
         }
@@ -183,7 +199,7 @@ export function validateFiles(
             invalid.push({
                 file,
                 reason: "total_size_exceeded",
-                message: `File "${file.name}" (size: ${size} bytes) was ignored because adding it would exceed the total combined limit of ${maxTotalSize} bytes.`
+                message: `File "${file.name}" (size: ${formatFileSize(size)}) was ignored because adding it would exceed the total combined limit of ${formatFileSize(maxTotalSize)}.`
             });
             continue;
         }
@@ -194,7 +210,7 @@ export function validateFiles(
 
     if (!ignoreInvalid && invalid.length > 0) {
         const totalErrorMsg = `File validation failed: ${invalid.map(i => i.message).join("; ")}`;
-        
+
         // Move all previously marked "valid" files to invalid (push instead of unshift to avoid O(n^2))
         for (const file of valid) {
             invalid.push({
@@ -204,7 +220,7 @@ export function validateFiles(
             });
         }
         valid.length = 0; // Empty the valid list
-        
+
         if (throwOnError) {
             throw new Error(totalErrorMsg);
         }

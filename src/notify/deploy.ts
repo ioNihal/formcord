@@ -1,5 +1,5 @@
 import { send } from "./send";
-import type { FormcordOptions } from "../types";
+import type { FormcordOptions, FormcordResult } from "../types";
 
 /**
  * Parameters for deployment notifications.
@@ -17,9 +17,9 @@ export type DeployParams = Omit<FormcordOptions, "data"> & {
 /**
  * Sends a deployment notification to Discord.
  */
-export async function deploy(options: DeployParams): Promise<void> {
+export async function deploy(options: DeployParams): Promise<FormcordResult> {
     const embedTitle = options.embed?.title ?? "Deployment";
-    await send({
+    return send({
         ...options,
         embed: {
             ...options.embed,

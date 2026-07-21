@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.0
+- **NEW**: Formcord notification methods now return `{ success: boolean }`, so callers can handle a swallowed Discord delivery failure without enabling exceptions.
+- **NEW**: Validation messages format file sizes in readable byte, KB, MB, or GB units.
+- **DOCS**: Documented delivery status handling and `throwOnError` debugging.
+
 ## 2.1.1
 - **NEW**: Added automatic normalization for standard browser `File` and `Blob` objects directly inside `validateFiles` (no upfront manual mapping required).
 - **NEW**: Added `"batch_rejected"` to validation error reasons when using all-or-nothing validation (`ignoreInvalid: false`).

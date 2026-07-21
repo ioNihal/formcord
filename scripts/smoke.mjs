@@ -17,7 +17,7 @@ const base = {
 };
 
 // 1) unified send (custom)
-await formcord.send({
+const firstResult = await formcord.send({
   token,
   channelId,
   text: "Testing the new unified `send()` function",
@@ -28,6 +28,10 @@ await formcord.send({
     "Status": "Success"
   }
 });
+
+if (!firstResult.success) {
+  throw new Error("Unified send failed");
+}
 
 await wait(1200);
 
